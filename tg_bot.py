@@ -25,7 +25,7 @@ async def command_start_handler(message: Message) -> None:
 
 
 @dp.message()
-async s
+async
 
 
 async def main() -> None:
