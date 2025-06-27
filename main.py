@@ -1,30 +1,35 @@
-import requests
-import time
+from aiogram import Dispatcher, Bot, F
+from aiogram.filters import Command
+from aiogram.types import Message, ContentType
 import os
 
-API_URL = 'https://api.telegram.org/bot'
 API_CATS_URL = 'https://random.dog/woof.json'
 BOT_TOKEN = os.getenv('TOKEN')
-ERROR_TEXT = 'Картинка не появилась, увы :(('
 
-offset = -2
-counter = 0
-cat_response: requests.Response
-cat_link: str
 
-while counter <= 100:
-    print('attempt =', counter)
-    response = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}').json()
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
-    if response['result']:
-        for result in response['result']:
-            offset = result['update_id']
-            chat_id = result['message']['from']['id']
-            cat_response = requests.get(API_CATS_URL)
-            if cat_response.status_code == 200:
-                cat_link = cat_response.json()['url']
-                requests.get(f'{API_URL}{BOT_TOKEN}/sendPhoto?chat_id={chat_id}&photo={cat_link}')
-            else:
-                requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={ERROR_TEXT}')
-    time.sleep(1)
-    counter += 1
+@dp.message(Command(commands=['start']))
+async def get_start(message: Message):
+    await bot.send_message(message.chat.id, 'Hi man!')
+
+@dp.message(Command(commands=['help']))
+async def send_commands(message: Message):
+    await message.answer('/start — to start communication with the bot\n/help — to check all available commands')
+
+@dp.message(F.photo)
+async def send_photo(message: Message):
+    await message.reply_photo(message.photo[-1].file_id)
+
+@dp.message(F.content_type == ContentType.STICKER)
+async def send_sticker(message: Message):
+    print(message)
+    await bot.send_sticker(message.chat.id, sticker='CAACAgIAAxkBAAMwaFl0r8NNcwZgCAuAi2bOHeOa27wAAml2AAL7M2BLB9wXvCnvfDU2BA')
+
+@dp.message()
+async def echo(message: Message):
+    await message.reply(text=message.text)
+
+if __name__ == '__main__':
+    dp.run_polling(bot)
