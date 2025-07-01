@@ -1,2 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.so
+.Python
 venv
-.git
+env
+.python-version
+
+# Node.js / nodemon
+node_modules/
+npm-debug.log*
+nodemon.json
+
+# IDE & OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
